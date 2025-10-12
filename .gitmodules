@@ -1,0 +1,5 @@
+[submodule "src/tszm"]
+	path = src/tszm
+	url = git@github.com:cshepherd/tszm
+[submodule "tszm"]
+	branch = react-compat
