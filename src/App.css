@@ -16,6 +16,10 @@
   }
 }
 
+.body {
+  background-color: #000;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -24,7 +28,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: #000;
 }
 
 .App-link {
@@ -42,5 +46,110 @@
 
 .zterminal-pane {
   height: 100vh;
-  width: 100vw;
+  width: 100%;
+  border: 2px solid white;
+  box-sizing: border-box;
 }
+
+.zmcdn-pane {
+  height: 100vh;
+  width: 100%;
+  border: 2px solid white;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.zmcdn-pane img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pane-container {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Side-by-side layout on wider screens */
+@media (min-width: 768px) {
+  .App {
+    display: flex;
+  }
+
+  .pane-container {
+    width: 50vw;
+  }
+
+  .zterminal-pane {
+    width: 100%;
+  }
+
+  .zmcdn-pane {
+    width: 100%;
+  }
+}
+
+form#config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  background-color: #000;
+}
+
+form#config-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+form#config-form .checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+}
+
+form#config-form .MuiCheckbox-root {
+  color: #999;
+}
+
+form#config-form .MuiCheckbox-root.Mui-checked {
+  color: #1976d2;
+}
+
+form#config-form .MuiTextField-root {
+  margin-top: 10px;
+}
+
+form#config-form .MuiInputBase-input {
+  color: white;
+}
+
+form#config-form .MuiInputLabel-root {
+  color: #999;
+}
+
+form#config-form .MuiInputLabel-root.Mui-focused {
+  color: #ccc;
+}
+
+form#config-form .MuiSelect-select {
+  color: white;
+}
+
+form#config-form .MuiSelect-icon {
+  color: #999;
+}
+
+form#config-form .MuiInput-root:before {
+  border-bottom-color: rgba(255, 255, 255, 0.42);
+}
+
+form#config-form .MuiInput-root:hover:not(.Mui-disabled):before {
+  border-bottom-color: rgba(255, 255, 255, 0.87);
+} 

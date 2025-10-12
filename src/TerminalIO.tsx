@@ -94,6 +94,29 @@ export class TerminalIO implements ZMInputOutputDevice {
     this.terminal.write(converted);
   }
 
+  reset(): void {
+    // Cancel any pending input operations first
+    if (this.resolveChar) {
+      this.resolveChar('');
+      this.resolveChar = null;
+    }
+
+    if (this.resolveLine) {
+      this.resolveLine('');
+      this.resolveLine = null;
+    }
+
+    // Clear buffers
+    this.lineBuffer = '';
+    this.inputBuffer = [];
+
+    // Clear the terminal screen and reset cursor
+    if (this.terminal) {
+      this.terminal.reset();
+      this.terminal.clear();
+    }
+  }
+
   close(): void {
     this.terminal = null;
     this.resolveChar = null;
