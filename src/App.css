@@ -1,5 +1,8 @@
 .App {
-  text-align: center;
+  text-align: left;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000;
 }
 
 .App-logo {
@@ -35,4 +38,9 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.zterminal-pane {
+  height: 100vh;
+  width: 100vw;
 }

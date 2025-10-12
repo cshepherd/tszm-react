@@ -22,5 +22,10 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/tszm/ZConsole.ts",
+    "src/tszm/tszm.ts",
+    "src/tszm/**/*.test.ts"
   ]
 }

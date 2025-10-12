@@ -1,24 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useRef } from 'react';
 import './App.css';
+import { ZMachine } from './tszm/ZMachine';
+import ZTerminal from './ZTerminal';
+import { TerminalIO } from './TerminalIO';
+import { Terminal } from '@xterm/xterm';
 
 function App() {
+  const terminalIORef = useRef<TerminalIO>(new TerminalIO());
+  const zmRef = useRef<ZMachine | null>(null);
+
+  const handleTerminalReady = async (terminal: Terminal) => {
+    // Connect the terminal to TerminalIO
+    terminalIORef.current.setTerminal(terminal);
+
+    // Initialize the ZMachine
+    if (!zmRef.current) {
+      zmRef.current = new ZMachine('https://cshepherd.fr/ZorkI.z3', terminalIORef.current);
+
+      // Load the game file
+      try {
+        await zmRef.current.load();
+      } catch (loadErr) {
+        console.error("Error loading game:", loadErr);
+        if (loadErr instanceof Error) {
+          console.error("Stack trace:", loadErr.stack);
+        }
+        return;
+      }
+    }
+
+    // Execute instructions in a loop
+    for (;;) {
+      try {
+        await zmRef.current.executeInstruction();
+      } catch (instrErr) {
+        // Re-throw QUIT without logging
+        if (instrErr instanceof Error && instrErr.message === "QUIT") {
+          throw instrErr;
+        }
+        console.error("Error executing instruction:", instrErr);
+        if (instrErr instanceof Error) {
+          console.error("Stack trace:", instrErr.stack);
+        }
+        throw instrErr;
+      }
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ZTerminal onTerminalReady={handleTerminalReady} />
     </div>
   );
 }
