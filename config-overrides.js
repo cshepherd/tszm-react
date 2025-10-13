@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = function override(config, env) {
   // Disable node polyfills for fs and other Node.js modules, but enable buffer
@@ -18,11 +19,15 @@ module.exports = function override(config, env) {
     "zlib": false,
   };
 
-  // Provide Buffer global
+  // Provide Buffer global and add Dotenv plugin
   config.plugins = [
     ...config.plugins,
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
+    }),
+    new Dotenv({
+      systemvars: true, // Load system environment variables as well
+      safe: false,      // Don't require .env.example file
     }),
   ];
 

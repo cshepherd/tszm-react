@@ -9,10 +9,10 @@ import { Checkbox, TextField, Select, MenuItem, FormControl, InputLabel, SelectC
 function App() {
   const terminalIORef = useRef<TerminalIO>(new TerminalIO());
   const zmRef = useRef<ZMachine | null>(null);
-  const [selectedGame, setSelectedGame] = useState<string>('ZorkI.z3');
+  const [selectedGame, setSelectedGame] = useState<string>(process.env.REACT_APP_DEFAULT_GAME || 'ZorkI.z3');
   const executionIdRef = useRef<number>(0); // Track which execution loop should be running
   const [zmcdnEnabled, setZmcdnEnabled] = useState<boolean>(true);
-  const [zmcdnUrl, setZmcdnUrl] = useState<string>('http://zmcdn.ballmerpeak.org:3003');
+  const [zmcdnUrl, setZmcdnUrl] = useState<string>(process.env.REACT_APP_ZMCDN_URL || 'http://zmcdn.ballmerpeak.org:3003');
   const [zmcdnImageUrl, setZmcdnImageUrl] = useState<string>('https://www.placecats.com/512/512');
 
   const handleZmcdnEnabledChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,19 +27,10 @@ function App() {
     terminalIORef.current.setZmcdnUrl(url);
   };
 
-  const handleGameChange = async (event: SelectChangeEvent) => {
-    setSelectedGame(event.target.value);
-
-    // Stop any existing execution loop
-    executionIdRef.current++;
-    const currentExecutionId = executionIdRef.current;
-
-    // Clear the screen and exit any pending input
-    terminalIORef.current.reset();
-    terminalIORef.current.setZmcdnSessionId(crypto.randomUUID());
-
+  const loadAndRunGame = async (gameFile: string, currentExecutionId: number) => {
     // Create new ZMachine with the selected game
-    zmRef.current = new ZMachine(`https://cshepherd.fr/zimage/${event.target.value}`, terminalIORef.current);
+    const gameImageBaseUrl = process.env.REACT_APP_GAME_IMAGE_URL || 'https://cshepherd.fr/zimage';
+    zmRef.current = new ZMachine(`${gameImageBaseUrl}/${gameFile}`, terminalIORef.current);
 
     // Set ZMachine reference in TerminalIO
     terminalIORef.current.setZMachine(zmRef.current);
@@ -77,6 +68,20 @@ function App() {
         throw instrErr;
       }
     }
+  };
+
+  const handleGameChange = async (event: SelectChangeEvent) => {
+    setSelectedGame(event.target.value);
+
+    // Stop any existing execution loop
+    executionIdRef.current++;
+    const currentExecutionId = executionIdRef.current;
+
+    // Clear the screen and exit any pending input
+    terminalIORef.current.reset();
+    terminalIORef.current.setZmcdnSessionId(crypto.randomUUID());
+
+    await loadAndRunGame(event.target.value, currentExecutionId);
   }
 
   const handleTerminalReady = async (terminal: Terminal) => {
@@ -96,44 +101,7 @@ function App() {
       executionIdRef.current++;
       const currentExecutionId = executionIdRef.current;
 
-      zmRef.current = new ZMachine(`https://cshepherd.fr/zimage/${selectedGame}`, terminalIORef.current);
-
-      // Set ZMachine reference in TerminalIO
-      terminalIORef.current.setZMachine(zmRef.current);
-
-      // Load the game file
-      try {
-        await zmRef.current.load();
-      } catch (loadErr) {
-        console.error("Error loading game:", loadErr);
-        if (loadErr instanceof Error) {
-          console.error("Stack trace:", loadErr.stack);
-        }
-        return;
-      }
-
-      // Execute instructions in a loop
-      for (;;) {
-        // Check if this execution loop should still be running
-        if (executionIdRef.current !== currentExecutionId) {
-          console.log("Execution loop stopped - game was changed");
-          return;
-        }
-
-        try {
-          await zmRef.current.executeInstruction();
-        } catch (instrErr) {
-          // Re-throw QUIT without logging
-          if (instrErr instanceof Error && instrErr.message === "QUIT") {
-            throw instrErr;
-          }
-          console.error("Error executing instruction:", instrErr);
-          if (instrErr instanceof Error) {
-            console.error("Stack trace:", instrErr.stack);
-          }
-          throw instrErr;
-        }
-      }
+      await loadAndRunGame(selectedGame, currentExecutionId);
     }
   };
 
