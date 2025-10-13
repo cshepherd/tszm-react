@@ -10,6 +10,10 @@ Eventually it had to happen: The React-based Web (or Native) frontend for TSZM.
 
 ... after this, it just worked. Of course, we needed to add CORS headers when serving our .z3 image files as well as on ZMCDN.
 
+## Demo
+
+Current version with current ZMCDN up at https://cshepherd.fr/tszm-react
+
 ## Roadmap
 
 - Dual-display web app: xterm.js terminal display with full z3+ cursor positioning support, as well as a window showing png output from zmcdn (this is mostly working)
