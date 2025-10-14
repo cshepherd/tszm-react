@@ -58,6 +58,38 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleUploadSavegame = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!currentGameIdentifier) return;
+
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      if (!arrayBuffer) return;
+
+      // Convert to base64
+      const bytes = new Uint8Array(arrayBuffer);
+      let binaryString = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binaryString += String.fromCharCode(bytes[i]);
+      }
+      const base64Data = btoa(binaryString);
+
+      // Save to localStorage
+      const saveKey = `tszm-save-${currentGameIdentifier}`;
+      localStorage.setItem(saveKey, base64Data);
+
+      // Update state to show download link
+      setHasSavegame(true);
+    };
+    reader.readAsArrayBuffer(file);
+
+    // Reset the input so the same file can be uploaded again
+    event.target.value = '';
+  };
+
   const loadAndRunGame = async (gameFile: string, currentExecutionId: number) => {
     // Create new ZMachine with the selected game
     const gameImageBaseUrl = process.env.REACT_APP_GAME_IMAGE_URL || 'https://cshepherd.fr/zimage';
@@ -190,20 +222,37 @@ function App() {
                   <MenuItem value="ZorkIII.z3">Zork III</MenuItem>
                 </Select>
               </FormControl>
-              {hasSavegame && (
-                <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+              <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                {hasSavegame && (
                   <a
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
                       handleDownloadSavegame();
                     }}
-                    style={{ textDecoration: 'none', color: '#1976d2' }}
+                    style={{ textDecoration: 'none', color: '#1976d2', marginRight: '16px' }}
                   >
                     Download savegame data
                   </a>
-                </div>
-              )}
+                )}
+                <input
+                  type="file"
+                  id="upload-savegame"
+                  accept=".sav,.qzl,.quetzal,application/x-quetzal"
+                  style={{ display: 'none' }}
+                  onChange={handleUploadSavegame}
+                />
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('upload-savegame')?.click();
+                  }}
+                  style={{ textDecoration: 'none', color: '#1976d2' }}
+                >
+                  Upload savegame data
+                </a>
+              </div>
               <div className="checkbox-row">
                 <Checkbox
                   id="zmcdn-enabled"
