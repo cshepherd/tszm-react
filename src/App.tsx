@@ -12,7 +12,7 @@ function App() {
   const [selectedGame, setSelectedGame] = useState<string>(process.env.REACT_APP_DEFAULT_GAME || 'ZorkI.z3');
   const executionIdRef = useRef<number>(0); // Track which execution loop should be running
   const [zmcdnEnabled, setZmcdnEnabled] = useState<boolean>(true);
-  const [zmcdnUrl, setZmcdnUrl] = useState<string>(process.env.REACT_APP_ZMCDN_URL || 'http://zmcdn.ballmerpeak.org:3003');
+  const [zmcdnUrl, setZmcdnUrl] = useState<string>(process.env.REACT_APP_ZMCDN_URL || 'https://zmcdn.ballmerpeak.org:3003');
   const [zmcdnImageUrl, setZmcdnImageUrl] = useState<string>('https://www.placecats.com/512/512');
   const [hasSavegame, setHasSavegame] = useState<boolean>(false);
   const [currentGameIdentifier, setCurrentGameIdentifier] = useState<string>('');
