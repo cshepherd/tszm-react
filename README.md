@@ -16,9 +16,8 @@ Current version with current ZMCDN up at https://cshepherd.fr/tszm-react
 
 ## Roadmap
 
+- save/restore to LocalStorage: DONE and works! You can even download the Quetzal-formatted savegame, if present (now how about an import feature?)
 - Dual-display web app: xterm.js terminal display with full z3+ cursor positioning support, as well as a window showing png output from zmcdn (this is mostly working)
-- LocalStorage is more than large enough to support the defacto game save standard. It's probably time.
-- React Native port for iOS/Android/Samsung refrigerator (I joke but Native is the next target)
 - Potential to start the audiotext version from here (... wouldn't the Native version be a great place to start the narrated/spoken version?)
 
 ## Status
