@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import { ZMachine } from './tszm/ZMachine';
 import ZTerminal from './ZTerminal';
@@ -14,6 +14,8 @@ function App() {
   const [zmcdnEnabled, setZmcdnEnabled] = useState<boolean>(true);
   const [zmcdnUrl, setZmcdnUrl] = useState<string>(process.env.REACT_APP_ZMCDN_URL || 'http://zmcdn.ballmerpeak.org:3003');
   const [zmcdnImageUrl, setZmcdnImageUrl] = useState<string>('https://www.placecats.com/512/512');
+  const [hasSavegame, setHasSavegame] = useState<boolean>(false);
+  const [currentGameIdentifier, setCurrentGameIdentifier] = useState<string>('');
 
   const handleZmcdnEnabledChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -25,6 +27,35 @@ function App() {
     const url = event.target.value;
     setZmcdnUrl(url);
     terminalIORef.current.setZmcdnUrl(url);
+  };
+
+  const handleDownloadSavegame = () => {
+    if (!currentGameIdentifier) return;
+
+    const saveKey = `tszm-save-${currentGameIdentifier}`;
+    const base64Data = localStorage.getItem(saveKey);
+
+    if (!base64Data) return;
+
+    // Convert base64 to binary data
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Create blob with Quetzal MIME type
+    const blob = new Blob([bytes], { type: 'application/x-quetzal' });
+
+    // Create download link
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${selectedGame}.sav`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const loadAndRunGame = async (gameFile: string, currentExecutionId: number) => {
@@ -44,6 +75,16 @@ function App() {
         console.error("Stack trace:", loadErr.stack);
       }
       return;
+    }
+
+    // After loading, check if there's a savegame in localStorage
+    const header = zmRef.current.getHeader();
+    if (header) {
+      const gameIdentifier = `${header.release}.${header.serial}`;
+      setCurrentGameIdentifier(gameIdentifier);
+      const saveKey = `tszm-save-${gameIdentifier}`;
+      const savedData = localStorage.getItem(saveKey);
+      setHasSavegame(savedData !== null);
     }
 
     // Execute instructions in a loop
@@ -149,6 +190,20 @@ function App() {
                   <MenuItem value="ZorkIII.z3">Zork III</MenuItem>
                 </Select>
               </FormControl>
+              {hasSavegame && (
+                <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDownloadSavegame();
+                    }}
+                    style={{ textDecoration: 'none', color: '#1976d2' }}
+                  >
+                    Download savegame data
+                  </a>
+                </div>
+              )}
               <div className="checkbox-row">
                 <Checkbox
                   id="zmcdn-enabled"
