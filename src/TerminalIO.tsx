@@ -15,6 +15,7 @@ export class TerminalIO implements ZMInputOutputDevice {
   private zmcdnSessionId: string = "";
   private zm: any = null; // Reference to ZMachine, set externally if needed
   private onImageUpdate: ((imageUrl: string) => void) | null = null;
+  private isProcessingZMCDN: boolean = false;
 
   constructor() {
     // Terminal will be set later when the component mounts
@@ -29,7 +30,25 @@ export class TerminalIO implements ZMInputOutputDevice {
   }
 
   async processZMCDNText(): Promise<void> {
+    // Prevent concurrent processing
+    if (this.isProcessingZMCDN) {
+      return;
+    }
+
     if (this.ZMCDNText && this.zmcdnEnabled) {
+      this.isProcessingZMCDN = true;
+
+      // Show spinner while loading
+      if (this.onImageUpdate) {
+        const spinnerSvg = `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="25" cy="25" r="10" stroke="#888" stroke-width="2" fill="none" stroke-dasharray="15 50" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
+          </circle>
+        </svg>`;
+        const spinnerDataUrl = `data:image/svg+xml;base64,${btoa(spinnerSvg)}`;
+        this.onImageUpdate(spinnerDataUrl);
+      }
+
       if (!this.zmcdnSessionId) {
         this.zmcdnSessionId = crypto.randomUUID();
       }
@@ -41,6 +60,7 @@ export class TerminalIO implements ZMInputOutputDevice {
       // Get gameId from header
       if (!this.zm) {
         console.error("ZMachine not initialized");
+        this.isProcessingZMCDN = false;
         return;
       }
 
@@ -49,6 +69,7 @@ export class TerminalIO implements ZMInputOutputDevice {
       const header = this.zm.getHeader();
       if (!header) {
         console.error("Unable to read game header");
+        this.isProcessingZMCDN = false;
         return;
       }
 
@@ -78,6 +99,8 @@ export class TerminalIO implements ZMInputOutputDevice {
         console.error(
           `Failed to fetch graphics from ${url}: ${error instanceof Error ? error.message : String(error)}`,
         );
+      } finally {
+        this.isProcessingZMCDN = false;
       }
     }
     return Promise.resolve();
@@ -189,14 +212,14 @@ export class TerminalIO implements ZMInputOutputDevice {
   }
 
   async readChar(): Promise<string> {
-    await this.processZMCDNText();
+    this.processZMCDNText();
     return new Promise<string>((resolve) => {
       this.resolveChar = resolve;
     });
   }
 
   async readLine(): Promise<string> {
-    await this.processZMCDNText();
+    this.processZMCDNText();
     return new Promise<string>((resolve) => {
       this.resolveLine = resolve;
     });
