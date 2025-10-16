@@ -63,6 +63,7 @@
   max-width: 100%;
   height: auto;
   display: block;
+  margin: 0 auto;
 }
 
 .pane-container {
@@ -78,6 +79,14 @@
 
   .pane-container {
     width: 50vw;
+  }
+
+  .pane-container:nth-child(1) {
+    width: 760px;
+  }
+
+  .pane-container:nth-child(2) {
+    width: calc(100vw - 760px);
   }
 
   .zterminal-pane {
