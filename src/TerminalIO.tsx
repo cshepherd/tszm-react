@@ -1,7 +1,7 @@
 import { Terminal } from "@xterm/xterm";
-import type { ZMInputOutputDevice } from "./tszm/ZMInputOutputDevice";
-import { ZMCDNInput } from "./tszm/ZMCDNInput";
-import { ZMachine } from "./tszm/ZMachine";
+import type { ZMInputOutputDevice } from "tszm";
+import { ZMCDNInput } from "./ZMCDNInput";
+import { ZMachine } from "tszm";
 
 export class TerminalIO implements ZMInputOutputDevice {
   private terminal: Terminal | null = null;

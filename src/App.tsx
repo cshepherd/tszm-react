@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
-import { ZMachine } from './tszm/ZMachine';
+import { ZMachine } from 'tszm';
 import ZTerminal from './ZTerminal';
 import { TerminalIO } from './TerminalIO';
 import { Terminal } from '@xterm/xterm';
