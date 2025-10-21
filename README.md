@@ -28,4 +28,4 @@ Current version with current ZMCDN up at https://cshepherd.fr/tszm-react
 
 ![reactscrn1](https://github.com/user-attachments/assets/3e1ffd87-b45e-457c-9d9a-fe7000cea0b1)
 
-Currently tszm is imported as a submodule, not via npm. This is intentional and it'll stay this way unless and until we decide tszm should go into npm.
+21-Oct-2025 - Both the Console and React versions are now consuming the npmjs module. No more submodules anywhere.
